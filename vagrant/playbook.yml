@@ -1,0 +1,30 @@
+---
+- hosts: all
+  tasks:  
+
+  - name: installs required packages
+    yum: name={{ item }} state=present
+    become: yes
+    with_items:
+      - mariadb
+      - mariadb-server
+      - MySQL-python
+
+  - name: starts MariaDB service
+    service: name=mariadb state=started
+    become: yes
+
+  - name: enables autostart of MariaDB service at boot
+    service: name=mariadb enabled=yes
+    become: yes
+
+  - name: ensures that the MariaDB 'python-intro' user is present
+    mysql_user: name=python-intro password=woo8oHeiwo5i host=% priv=*.*:ALL state=present login_user=root
+
+  - name: ensures that the MariaDB 'root' user is enabled from any host
+    mysql_user: name=root state=present password=root priv=*.*:ALL login_user=root
+
+  - name: Creates databases
+    mysql_db: name={{ item }} state=present login_user=root
+    with_items:
+      - sandbox
